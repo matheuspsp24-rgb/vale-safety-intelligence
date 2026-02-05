@@ -28,6 +28,8 @@ app.add_middleware(
 class Incidente(BaseModel):
     descricao: str
     setor: str
+    data: str = None
+    hora: str = None
 
 @app.post("/analisar-seguranca")
 async def analisar_seguranca(incidente: Incidente):

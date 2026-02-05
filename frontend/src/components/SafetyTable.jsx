@@ -1,5 +1,5 @@
 import React from 'react';
-import { Eye, Clock, AlertCircle } from 'lucide-react';
+import { Eye, Clock, AlertCircle, Calendar } from 'lucide-react';
 
 export default function SafetyTable({ data, onView }) {
   return (
@@ -24,20 +24,25 @@ export default function SafetyTable({ data, onView }) {
           ) : (
             data.map((item, idx) => (
               <tr key={idx} className="hover:bg-slate-50/50 transition-colors group">
-                <td className="px-6 py-4 text-slate-500 font-medium flex items-center gap-2">
-                  <Clock size={14} className="text-slate-300" /> {item.timestamp}
+                <td className="px-6 py-4 text-slate-500 font-medium whitespace-nowrap">
+                  <div className="flex items-center gap-2">
+                    <Calendar size={14} className="text-slate-300" />
+                    {item.data ? `${item.data.split('-')[2]}/${item.data.split('-')[1]}/${item.data.split('-')[0]}` : '--/--/----'}
+                  </div>
+                  <div className="flex items-center gap-2 mt-1 text-[11px] text-slate-400">
+                    <Clock size={12} className="text-slate-300" /> {item.hora || '--:--'}
+                  </div>
                 </td>
                 <td className="px-6 py-4 text-slate-700 font-bold">{item.setor}</td>
                 <td className="px-6 py-4">
-                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase ${
-                    item.nivel_risco === 'Crítico' || item.nivel_risco === 'Alto'
+                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase ${item.nivel_risco === 'Crítico' || item.nivel_risco === 'Alto'
                     ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-600'
-                  }`}>
+                    }`}>
                     {item.nivel_risco}
                   </span>
                 </td>
                 <td className="px-6 py-4 text-right">
-                  <button 
+                  <button
                     onClick={() => onView(item)}
                     className="p-2 hover:bg-amber-100 hover:text-amber-700 rounded-lg text-slate-400 transition-all"
                   >

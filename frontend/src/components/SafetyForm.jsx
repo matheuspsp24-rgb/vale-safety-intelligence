@@ -1,9 +1,19 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Send, Loader2, MapPin, FileText } from 'lucide-react';
+import { Send, Loader2, MapPin, FileText, Calendar, Clock } from 'lucide-react';
 
 export default function SafetyForm({ onSuccess }) {
-    const [incidente, setIncidente] = useState({ setor: '', descricao: '' });
+    // Inicializa com a data e hora atual
+    const now = new Date();
+    const today = now.toISOString().split('T')[0];
+    const time = now.toTimeString().split(' ')[0].substring(0, 5);
+
+    const [incidente, setIncidente] = useState({
+        setor: '',
+        descricao: '',
+        data: today,
+        hora: time
+    });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
@@ -21,11 +31,18 @@ export default function SafetyForm({ onSuccess }) {
             // Enviamos para o componente pai (App.jsx) os dados processados + o setor original
             onSuccess({
                 ...analiseProcessada,
-                setor: incidente.setor
+                setor: incidente.setor,
+                data: incidente.data,
+                hora: incidente.hora
             });
 
             // Limpa o formulário após o sucesso
-            setIncidente({ setor: '', descricao: '' });
+            setIncidente({
+                setor: '',
+                descricao: '',
+                data: today,
+                hora: time
+            });
         } catch (err) {
             console.error("Erro na comunicação com o servidor:", err);
             setError("Não foi possível processar a análise. Verifique se o servidor Python está rodando.");
@@ -34,20 +51,69 @@ export default function SafetyForm({ onSuccess }) {
         }
     };
 
+    const SETORES = [
+        "Mina de Ferro - Itabira",
+        "Mina de Ferro - Carajás",
+        "Porto de Tubarão - ES",
+        "Porto de Ponta da Madeira - MA",
+        "Logística Ferroviária (EFC)",
+        "Logística Ferroviária (EFVM)",
+        "Pelotização - Vitória",
+        "Usina de Beneficiamento",
+        "Oficina de Manutenção Industrial",
+        "Área de Embarque de Cargas",
+        "Laboratório Químico",
+        "Administrativo / Escritórios"
+    ];
+
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Campo: Setor */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Campo: Data */}
+                <div className="space-y-2">
+                    <label className="text-sm font-bold text-slate-700 flex items-center gap-2">
+                        <Calendar size={16} className="text-slate-400" /> Data do Incidente
+                    </label>
+                    <input
+                        type="date"
+                        required
+                        value={incidente.data}
+                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500 outline-none transition-all text-slate-600 font-medium"
+                        onChange={(e) => setIncidente({ ...incidente, data: e.target.value })}
+                    />
+                </div>
+
+                {/* Campo: Hora */}
+                <div className="space-y-2">
+                    <label className="text-sm font-bold text-slate-700 flex items-center gap-2">
+                        <Clock size={16} className="text-slate-400" /> Hora Aproximada
+                    </label>
+                    <input
+                        type="time"
+                        required
+                        value={incidente.hora}
+                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500 outline-none transition-all text-slate-600 font-medium"
+                        onChange={(e) => setIncidente({ ...incidente, hora: e.target.value })}
+                    />
+                </div>
+            </div>
+
+            {/* Campo: Setor (AGORA DROPDOWN) */}
             <div className="space-y-2">
                 <label className="text-sm font-bold text-slate-700 flex items-center gap-2">
                     <MapPin size={16} className="text-slate-400" /> Setor Operacional
                 </label>
-                <input
+                <select
                     required
                     value={incidente.setor}
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500 outline-none transition-all placeholder:text-slate-400 text-slate-600 font-medium"
-                    placeholder="Ex: Pátio de Estocagem - Porto de Tubarão"
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500 outline-none transition-all text-slate-600 font-medium appearance-none cursor-pointer"
                     onChange={(e) => setIncidente({ ...incidente, setor: e.target.value })}
-                />
+                >
+                    <option value="" disabled>Selecione a unidade ou setor...</option>
+                    {SETORES.map((setor) => (
+                        <option key={setor} value={setor}>{setor}</option>
+                    ))}
+                </select>
             </div>
 
             {/* Campo: Descrição */}

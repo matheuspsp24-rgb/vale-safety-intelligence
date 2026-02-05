@@ -14,11 +14,7 @@ function App() {
   const [selectedAnalysis, setSelectedAnalysis] = useState(null);
 
   const handleNewAnalysis = (newAnalysis) => {
-    const analysisWithMeta = {
-      ...newAnalysis,
-      timestamp: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
-    };
-    setAnalyses([analysisWithMeta, ...analyses]);
+    setAnalyses([newAnalysis, ...analyses]);
     setIsFormOpen(false);
   };
 
